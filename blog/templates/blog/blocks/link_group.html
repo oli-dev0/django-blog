@@ -1,0 +1,7 @@
+<nav class="blog-link-group" aria-label="{{ item.label }}">
+  <ul>
+    {% for link in item.links %}
+      <li><a href="{{ link.url }}" target="_blank" rel="noopener noreferrer">{{ link.label }}</a></li>
+    {% endfor %}
+  </ul>
+</nav>

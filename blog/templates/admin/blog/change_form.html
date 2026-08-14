@@ -1,0 +1,17 @@
+{% extends "admin/change_form.html" %}
+{% load i18n %}
+
+{% block extrahead %}
+  {{ block.super }}
+  {{ blog_internal_link_destinations|json_script:"blog-internal-link-destinations" }}
+{% endblock %}
+
+{% block object-tools-items %}
+  {% if blog_action_urls.preview and perms.blog.view_blogpost %}<li><a href="{{ blog_action_urls.preview }}">{% trans "Preview" %}</a></li>{% endif %}
+  {% if blog_action_urls.mark_ready and perms.blog.change_blogpost %}<li><form method="post" action="{{ blog_action_urls.mark_ready }}">{% csrf_token %}<button type="submit">{% trans "Mark ready" %}</button></form></li>{% endif %}
+  {% if blog_action_urls.publish and perms.blog.publish_blogpost %}<li><a href="{{ blog_action_urls.publish }}">{% trans "Publish now" %}</a></li>{% endif %}
+  {% if blog_action_urls.schedule and perms.blog.publish_blogpost %}<li><a href="{{ blog_action_urls.schedule }}">{% trans "Schedule" %}</a></li>{% endif %}
+  {% if blog_action_urls.unpublish and perms.blog.unpublish_blogpost %}<li><a href="{{ blog_action_urls.unpublish }}">{% trans "Unpublish" %}</a></li>{% endif %}
+  {% if blog_action_urls.mark_reviewed and perms.blog.publish_blogpost %}<li><a href="{{ blog_action_urls.mark_reviewed }}">{% trans "Mark reviewed" %}</a></li>{% endif %}
+  {{ block.super }}
+{% endblock %}

@@ -1,0 +1,49 @@
+{% load i18n %}
+<fieldset
+  class="blog-faq-editor"
+  data-blog-faq-editor
+  data-question-label="{{ widget.question_label }}"
+  data-answer-label="{{ widget.answer_label }}"
+  data-delete-confirmation="{{ widget.delete_confirmation }}"
+>
+  <legend>{% trans "FAQ" %}</legend>
+  <input type="hidden" name="{{ widget.name }}" value="{{ widget.value }}"{% include "django/forms/widgets/attrs.html" %} data-faq-value>
+  <div class="blog-faq-editor__items" data-faq-items>
+    {% for faq_item in widget.items %}
+      <section class="blog-faq-editor__item" data-faq-item>
+        <div class="blog-faq-editor__field">
+          <label for="{{ faq_item.question_id }}" data-faq-question-label>{% blocktranslate with number=faq_item.number %}Question {{ number }}{% endblocktranslate %}</label>
+          <input type="text" id="{{ faq_item.question_id }}" name="{{ widget.name }}__question_{{ faq_item.index }}" value="{{ faq_item.question }}" maxlength="300"{% if faq_item.described_by %} aria-describedby="{{ faq_item.described_by }}"{% endif %}{% if faq_item.invalid %} aria-invalid="true"{% endif %} data-faq-question>
+        </div>
+        <div class="blog-faq-editor__field">
+          <label for="{{ faq_item.answer_id }}" data-faq-answer-label>{% blocktranslate with number=faq_item.number %}Answer {{ number }}{% endblocktranslate %}</label>
+          {% include faq_item.answer_widget.template_name with widget=faq_item.answer_widget %}
+        </div>
+        <div class="blog-faq-editor__actions">
+          <button type="button" class="button" data-faq-action="up">{% trans "Move up" %}</button>
+          <button type="button" class="button" data-faq-action="down">{% trans "Move down" %}</button>
+          <button type="button" class="button" data-faq-action="delete">{% trans "Delete question" %}</button>
+        </div>
+      </section>
+    {% endfor %}
+  </div>
+  <p class="blog-faq-editor__empty" data-faq-empty{% if widget.items %} hidden{% endif %}>{% trans "Add a question and answer to start this FAQ." %}</p>
+  <button type="button" class="button" data-faq-add>{% trans "Add question" %}</button>
+  <template data-faq-template>
+    <section class="blog-faq-editor__item" data-faq-item>
+      <div class="blog-faq-editor__field">
+        <label for="{{ widget.attrs.id }}__question___prefix__" data-faq-question-label>{{ widget.question_label }}</label>
+        <input type="text" id="{{ widget.attrs.id }}__question___prefix__" name="{{ widget.name }}__question___prefix__" maxlength="300"{% if widget.described_by %} aria-describedby="{{ widget.described_by }}"{% endif %}{% if widget.invalid %} aria-invalid="true"{% endif %} data-faq-question>
+      </div>
+      <div class="blog-faq-editor__field">
+        <label for="{{ widget.attrs.id }}__answer___prefix__" data-faq-answer-label>{{ widget.answer_label }}</label>
+        {% include widget.template_answer_widget.template_name with widget=widget.template_answer_widget %}
+      </div>
+      <div class="blog-faq-editor__actions">
+        <button type="button" class="button" data-faq-action="up">{% trans "Move up" %}</button>
+        <button type="button" class="button" data-faq-action="down">{% trans "Move down" %}</button>
+        <button type="button" class="button" data-faq-action="delete">{% trans "Delete question" %}</button>
+      </div>
+    </section>
+  </template>
+</fieldset>

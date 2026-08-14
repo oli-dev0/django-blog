@@ -1,0 +1,19 @@
+{% load i18n static %}
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="robots" content="noindex,nofollow,noarchive">
+    <title>{% trans "Preview" %}: {{ post.title }}</title>
+    <link rel="stylesheet" href="{% static blog_stylesheet %}">
+  </head>
+  <body class="blog-preview-unavailable-page">
+    <main class="blog-preview-unavailable">
+      <section aria-labelledby="blog-preview-unavailable-title">
+        <h1 id="blog-preview-unavailable-title">{% trans "The selected website preview is not available." %}</h1>
+        {% include "blog/preview_controls.html" %}
+      </section>
+    </main>
+  </body>
+</html>

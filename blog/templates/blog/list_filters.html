@@ -1,0 +1,207 @@
+{% load i18n static %}
+<section class="blog-filters" aria-labelledby="blog-filters-toggle" data-blog-filter-root data-blog-filter-active="{{ filter_active|yesno:'true,false' }}" data-blog-filter-updating="{% trans 'Updating articles...' %}">
+  <div class="blog-filters__toolbar">
+    <div class="blog-filters__header">
+      <button
+        id="blog-filters-toggle"
+        class="blog-filters__toggle{% if additional_filter_count %} blog-filters__toggle--active{% endif %}"
+        type="button"
+        aria-controls="blog-filters-panel"
+        aria-expanded="false"
+        data-blog-filter-toggle
+      >
+        <span class="blog-filters__icon-wrap" aria-hidden="true">
+          <svg class="blog-filters__icon" viewBox="0 0 24 24">
+            <path d="M3 5h18l-7 8v5l-4 2v-7Z" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"></path>
+          </svg>
+          {% if additional_filter_count %}<span class="blog-filters__active-count">{{ additional_filter_count }}</span>{% endif %}
+        </span>
+        <span>{% trans "Filters" %}</span>{% if additional_filter_count %}<span class="visually-hidden">{% blocktrans count counter=additional_filter_count %}{{ counter }} active filter{% plural %}{{ counter }} active filters{% endblocktrans %}</span>{% endif %}
+        <svg class="blog-filters__chevron" aria-hidden="true" viewBox="0 0 24 24">
+          <path d="m9 6 6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+        </svg>
+      </button>
+    </div>
+
+    <form action="{{ filter_form_action }}" method="get" data-blog-filter-form>
+    {% if filter_state.search_query %}<input type="hidden" name="q" value="{{ filter_state.search_query }}">{% endif %}
+    {% if filter_state.article_type %}<input type="hidden" name="type" value="{{ filter_state.article_type }}">{% endif %}
+    <div id="blog-filters-panel" class="blog-filters__panel" aria-labelledby="blog-filters-toggle" data-blog-filter-panel>
+      <div class="blog-filters__controls">
+        <fieldset class="blog-filters__group blog-filters__dropdown blog-filters__dropdown--single" data-blog-filter-dropdown>
+          <legend class="visually-hidden">{% trans "Category" %}</legend>
+          <button class="blog-filters__dropdown-toggle" type="button" aria-controls="blog-filter-category-panel" aria-expanded="false" data-blog-dropdown-toggle>
+            <svg class="blog-filters__control-icon" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M3.5 7.5A2 2 0 0 1 5.5 5.5H10l2 2h6.5a2 2 0 0 1 2 2v8.5a2 2 0 0 1-2 2h-15a2 2 0 0 1-2-2V7.5Z"></path>
+            </svg>
+            <span>{% if filter_state.category_slug %}{% for option in filter_options.categories %}{% if option.value == filter_state.category_slug %}{{ option.label }}{% endif %}{% endfor %}{% else %}{% trans "Any category" %}{% endif %}</span>
+            <svg class="blog-filters__dropdown-chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="m7 9 5 5 5-5"></path></svg>
+          </button>
+          <div id="blog-filter-category-panel" class="blog-filters__dropdown-panel" hidden data-blog-dropdown-panel>
+            <div class="blog-filters__options">
+              <label><input type="radio" name="category" value=""{% if not filter_state.category_slug %} checked{% endif %} data-blog-filter-single><span>{% trans "Any category" %}</span></label>
+              {% for option in filter_options.categories %}
+                <label><input type="radio" name="category" value="{{ option.value }}"{% if option.value == filter_state.category_slug %} checked{% endif %} data-blog-filter-single><span>{{ option.label }}</span></label>
+              {% endfor %}
+            </div>
+          </div>
+        </fieldset>
+
+        <fieldset class="blog-filters__group blog-filters__dropdown blog-filters__dropdown--single" data-blog-filter-dropdown>
+          <legend class="visually-hidden">{% trans "Author" %}</legend>
+          <button class="blog-filters__dropdown-toggle" type="button" aria-controls="blog-filter-author-panel" aria-expanded="false" data-blog-dropdown-toggle>
+            <svg class="blog-filters__control-icon" viewBox="0 0 24 24" aria-hidden="true">
+              <circle cx="12" cy="8" r="3.5"></circle>
+              <path d="M4.5 20a7.5 7.5 0 0 1 15 0"></path>
+            </svg>
+            <span>{% if filter_state.author_slug %}{% for option in filter_options.authors %}{% if option.value == filter_state.author_slug %}{{ option.label }}{% endif %}{% endfor %}{% else %}{% trans "Any author" %}{% endif %}</span>
+            <svg class="blog-filters__dropdown-chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="m7 9 5 5 5-5"></path></svg>
+          </button>
+          <div id="blog-filter-author-panel" class="blog-filters__dropdown-panel" hidden data-blog-dropdown-panel>
+            <div class="blog-filters__options">
+              <label><input type="radio" name="author" value=""{% if not filter_state.author_slug %} checked{% endif %} data-blog-filter-single><span>{% trans "Any author" %}</span></label>
+              {% for option in filter_options.authors %}
+                <label><input type="radio" name="author" value="{{ option.value }}"{% if option.value == filter_state.author_slug %} checked{% endif %} data-blog-filter-single><span>{{ option.label }}</span></label>
+              {% endfor %}
+            </div>
+          </div>
+        </fieldset>
+
+        <fieldset class="blog-filters__group blog-filters__dropdown blog-filters__dropdown--single" data-blog-filter-dropdown>
+          <legend class="visually-hidden">{% trans "Date" %}</legend>
+          <button class="blog-filters__dropdown-toggle" type="button" aria-controls="blog-filter-date-panel" aria-expanded="false" data-blog-dropdown-toggle>
+            <svg class="blog-filters__control-icon" viewBox="0 0 24 24" aria-hidden="true">
+              <rect x="3.5" y="5.5" width="17" height="15" rx="2"></rect>
+              <path d="M7.5 3.5v4M16.5 3.5v4M3.5 10h17"></path>
+            </svg>
+            <span>{% if filter_state.date_preset or filter_state.year %}{% for option in date_filter_options %}{% if option.value == filter_state.date_preset or option.value == filter_state.year|stringformat:'s' %}{{ option.label }}{% endif %}{% endfor %}{% else %}{% trans "Any date" %}{% endif %}</span>
+            <svg class="blog-filters__dropdown-chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="m7 9 5 5 5-5"></path></svg>
+          </button>
+          <div id="blog-filter-date-panel" class="blog-filters__dropdown-panel" hidden data-blog-dropdown-panel>
+            <div class="blog-filters__options">
+              <label><input type="radio" name="date" value=""{% if not filter_state.date_preset and not filter_state.year %} checked{% endif %} data-blog-filter-date><span>{% trans "Any date" %}</span></label>
+              {% for option in date_filter_options %}
+                <label><input type="radio" name="date" value="{{ option.value }}"{% if option.value == filter_state.date_preset or option.value == filter_state.year|stringformat:'s' %} checked{% endif %} data-blog-filter-date><span>{{ option.label }}</span></label>
+              {% endfor %}
+            </div>
+          </div>
+        </fieldset>
+
+        <div class="blog-filters__group blog-filters__dropdown" data-blog-filter-dropdown data-blog-filter-group="tag">
+          <button class="blog-filters__dropdown-toggle" type="button" aria-controls="blog-filter-tags-panel" aria-expanded="false" data-blog-dropdown-toggle>
+            <svg class="blog-filters__control-icon" viewBox="0 0 24 24" aria-hidden="true">
+              <path fill="none" d="M2.5 4.5a2 2 0 0 1 2-2h5.086a2 2 0 0 1 1.414.586l10 10a2 2 0 0 1 0 2.828l-5.086 5.086a2 2 0 0 1-2.828 0l-10-10A2 2 0 0 1 2.5 9.586V4.5Zm5.5 2.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Z"></path>
+            </svg>
+            <span>{% trans "Tags" %}</span>
+            <svg class="blog-filters__dropdown-chevron" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="m7 9 5 5 5-5" fill="none"></path>
+            </svg>
+          </button>
+          <div id="blog-filter-tags-panel" class="blog-filters__dropdown-panel" hidden data-blog-dropdown-panel>
+            <div class="blog-filters__tag-help-row">
+              <p class="blog-filters__tag-help">{% trans "Match all selected tags" %}</p>
+              {% if filter_state.tag_slugs %}<a class="blog-filters__tag-clear" href="{{ clear_tag_filters_url }}">{% trans "Clear" %}</a>{% endif %}
+            </div>
+            <div class="blog-filters__options blog-filters__options--scroll">
+            {% for option in filter_options.tags %}
+              <label>
+                <input type="checkbox" name="tag" value="{{ option.value }}"{% if option.value in filter_state.tag_slugs %} checked{% endif %}>
+                <span>{{ option.label }}</span>
+              </label>
+            {% endfor %}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    </form>
+  </div>
+
+  <form class="blog-filters__search-form" action="{{ filter_form_action }}" method="get" role="search">
+    {% if filter_state.article_type %}<input type="hidden" name="type" value="{{ filter_state.article_type }}">{% endif %}
+    {% if filter_state.category_slug %}<input type="hidden" name="category" value="{{ filter_state.category_slug }}">{% endif %}
+    {% if filter_state.author_slug %}<input type="hidden" name="author" value="{{ filter_state.author_slug }}">{% endif %}
+    {% if filter_state.date_preset %}<input type="hidden" name="date" value="{{ filter_state.date_preset }}">{% elif filter_state.year %}<input type="hidden" name="year" value="{{ filter_state.year }}">{% endif %}
+    {% for tag_slug in filter_state.tag_slugs %}<input type="hidden" name="tag" value="{{ tag_slug }}">{% endfor %}
+    <label class="visually-hidden" for="blog-search-input">{% trans "Search articles" %}</label>
+    <div class="blog-filters__search-control">
+      <button class="blog-filters__search-submit" type="submit" aria-label="{% trans 'Search articles' %}">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <circle cx="10.5" cy="10.5" r="6.5"></circle>
+          <path d="m15.5 15.5 5 5"></path>
+        </svg>
+      </button>
+      <input id="blog-search-input" type="search" name="q" value="{{ filter_state.search_query|default:'' }}" placeholder="{% trans 'Search' %}" maxlength="200" autocomplete="off">
+      {% if search_active %}<a class="blog-filters__search-clear" href="{{ clear_search_url }}">{% trans "Clear" %}</a>{% endif %}
+    </div>
+  </form>
+
+  {% if active_filters %}
+    <div class="blog-filters__active" aria-label="{% trans 'Active filters' %}">
+      <a class="blog-filters__clear" href="{{ clear_filters_url }}">
+        <svg class="blog-filters__clear-icon" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M4 12a8 8 0 0 1 13.5-5.8L20 9"></path>
+          <path d="M20 4v5h-5M20 12a8 8 0 0 1-13.5 5.8L4 15"></path>
+          <path d="M4 20v-5h5"></path>
+        </svg>
+        {% trans "Clear all" %}
+      </a>
+      <ul>
+        {% for active_filter in active_filters %}
+          <li>
+            <span>{{ active_filter.dimension }}: {{ active_filter.value }}</span>
+            <a
+              href="{{ active_filter.url }}"
+              aria-label="{% blocktrans with dimension=active_filter.dimension value=active_filter.value %}Remove {{ dimension }} {{ value }}{% endblocktrans %}"
+            >
+              <svg class="blog-filters__active-remove-icon" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="m6 6 12 12M18 6 6 18"></path>
+              </svg>
+            </a>
+          </li>
+        {% endfor %}
+      </ul>
+    </div>
+  {% endif %}
+
+  <div class="blog-filters__types-row">
+    <nav class="blog-filters__types" aria-label="{% trans 'Article type' %}" data-blog-type-nav>
+      {% for type_link in article_type_links %}
+        {% if forloop.first %}
+          <div class="blog-filters__types-fixed">
+            <a href="{{ type_link.url }}"{% if type_link.selected %} aria-current="true"{% endif %}>{{ type_link.label }}</a>
+            <span class="blog-filters__types-separator" aria-hidden="true"></span>
+          </div>
+        {% endif %}
+      {% endfor %}
+      <div class="blog-filters__types-overflow">
+        <button
+          class="blog-filters__types-more blog-filters__types-more--start"
+          type="button"
+          aria-label="{% trans 'Show previous article types' %}"
+          data-blog-type-previous
+          hidden
+        ><span class="blog-filters__types-chevron" aria-hidden="true"></span></button>
+        <div class="blog-filters__types-scroll" data-blog-type-scroll>
+          <ul>
+            {% for type_link in article_type_links %}
+              {% if not forloop.first %}
+                <li><a href="{{ type_link.url }}"{% if type_link.selected %} aria-current="true"{% endif %}>{{ type_link.label }}</a></li>
+              {% endif %}
+            {% endfor %}
+          </ul>
+        </div>
+        <button
+          class="blog-filters__types-more blog-filters__types-more--end"
+          type="button"
+          aria-label="{% trans 'Show more article types' %}"
+          data-blog-type-next
+          hidden
+        ><span class="blog-filters__types-chevron" aria-hidden="true"></span></button>
+      </div>
+    </nav>
+    <a class="blog-rss__link" href="{{ rss_feed_url }}" target="_blank" rel="noopener noreferrer" aria-label="RSS feed">
+      <img src="{% static 'core/img/icons/rss.svg' %}" alt="" width="20" height="20">
+    </a>
+  </div>
+</section>

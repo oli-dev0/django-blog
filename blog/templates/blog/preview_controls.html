@@ -1,0 +1,27 @@
+{% load i18n %}
+<section class="blog-preview-controls" aria-label="{% trans 'Preview controls' %}">
+  <p class="blog-preview-controls__notice">{% trans "Private preview. Only signed-in staff can view this page." %}</p>
+  {% if preview_has_site_choices %}
+    <form method="get" action="{{ request.path }}" class="blog-preview-controls__form">
+      <div class="blog-preview-controls__field">
+        <label class="visually-hidden" for="{{ preview_website_form.site.id_for_label }}">{{ preview_website_form.site.label }}</label>
+        {{ preview_website_form.site }}
+        {% if preview_website_form.site.errors %}
+          <div id="id_site_errors" class="blog-preview-controls__errors" role="alert">
+            {% for error in preview_website_form.site.errors %}<p>{% trans "Error:" %} {{ error }}</p>{% endfor %}
+          </div>
+        {% endif %}
+      </div>
+      <button type="submit">{% trans "Preview" %}</button>
+      {% if change_url %}<a href="{{ change_url }}">{% trans "Back" %}</a>{% endif %}
+    </form>
+  {% endif %}
+  {% if preview_site_unassigned %}
+    <p class="blog-preview-controls__warning">{% trans "This article is not available on the selected website." %}</p>
+  {% endif %}
+  {% if preview_warnings %}
+    <ul class="blog-preview-controls__warnings">
+      {% for warning in preview_warnings %}<li>{{ warning }}</li>{% endfor %}
+    </ul>
+  {% endif %}
+</section>

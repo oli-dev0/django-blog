@@ -1,0 +1,84 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+
+{% block extrahead %}
+  {{ block.super }}
+  {{ media }}
+{% endblock %}
+
+{% block bodyclass %}{{ block.super }} app-{{ opts.app_label }} model-{{ opts.model_name }} blog-import{% endblock %}
+
+{% block breadcrumbs %}
+  <div class="breadcrumbs">
+    <a href="{{ admin_index_url }}">{% trans "Home" %}</a>
+    &rsaquo; <a href="{{ admin_app_list_url }}">{{ opts.app_config.verbose_name }}</a>
+    &rsaquo; <a href="{{ changelist_url }}">{{ opts.verbose_name_plural|capfirst }}</a>
+    &rsaquo; {% trans "Import article" %}
+  </div>
+{% endblock %}
+
+{% block content %}
+  <div id="content-main" data-blog-import-page>
+    <div class="messagelist">
+      <div class="messagelist__message">
+        <strong>{% trans "Draft only" %}</strong>
+        <p>{% trans "Importing creates a separate new draft. It does not publish or replace an existing article." %}</p>
+      </div>
+    </div>
+
+    {% if form.errors or issue_groups %}
+      <div id="import-error-summary" class="errornote blog-import__error-summary" data-blog-import-error-summary role="alert" tabindex="-1" aria-labelledby="import-error-summary-title">
+        <h2 id="import-error-summary-title">{% trans "Please correct the following errors" %}</h2>
+        <ul>
+          {% for error in form.non_field_errors %}
+            <li>{{ error }}</li>
+          {% endfor %}
+          {% for field in form %}
+            {% for error in field.errors %}
+              <li><a href="#{{ field.id_for_label }}">{{ field.label }}: {{ error }}</a></li>
+            {% endfor %}
+          {% endfor %}
+          {% for group in issue_groups %}
+            <li>
+              <strong>{{ group.label }}</strong>
+              <ul>
+                {% for issue in group.issues %}
+                  <li>{{ issue.location }}: {{ issue.message }}</li>
+                {% endfor %}
+              </ul>
+            </li>
+          {% endfor %}
+        </ul>
+      </div>
+    {% endif %}
+
+    <p>{% trans "Choose one article JSON file and the local image files it references. The files are validated before anything is staged for review." %}</p>
+
+    <form method="post" enctype="multipart/form-data" novalidate data-blog-import-form>
+      {% csrf_token %}
+
+      <fieldset class="module aligned">
+        <legend>{% trans "Files to validate" %}</legend>
+
+        {% for field in form %}
+          <div class="form-row{% if field.errors %} errors{% endif %}{% if field.name == 'source_file' or field.name == 'image_files' %} blog-import__file-row{% endif %}"{% if field.name == 'source_file' or field.name == 'image_files' %} data-blog-import-file-field{% endif %}>
+            {{ field.errors }}
+            {{ field.label_tag }}
+            {{ field }}
+            {% if field.name == 'source_file' or field.name == 'image_files' %}
+              <ul class="blog-import__selected-files" data-blog-import-selected-files aria-live="polite" aria-atomic="true" hidden></ul>
+            {% endif %}
+            {% if field.help_text %}
+              <p class="help"{% if field.id_for_label %} id="{{ field.id_for_label }}_helptext"{% endif %}>{{ field.help_text }}</p>
+            {% endif %}
+          </div>
+        {% endfor %}
+      </fieldset>
+
+      <div class="submit-row blog-import__actions">
+        <input type="submit" value="{% trans "Validate import" %}" class="default">
+        <a href="{{ changelist_url }}" class="closelink">{% trans "Cancel" %}</a>
+      </div>
+    </form>
+  </div>
+{% endblock %}

@@ -1,0 +1,8 @@
+{% load i18n %}
+<div class="blog-tag-picker" data-blog-tag-picker>
+  <div class="blog-tag-picker__controls">
+    <button type="button" class="button" data-blog-tag-action="add-all" aria-controls="{{ widget.attrs.id }}">{% trans "Add all" %}</button>
+    <button type="button" class="button" data-blog-tag-action="remove-all" aria-controls="{{ widget.attrs.id }}">{% trans "Remove all" %}</button>
+  </div>
+  {% include "django/forms/widgets/multiple_input.html" with widget=widget %}
+</div>

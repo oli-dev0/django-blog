@@ -1,0 +1,24 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+
+{% block content %}
+  <div class="module aligned">
+    <h1>{{ action_title|default:_('Confirm article action') }}</h1>
+    <p><strong>{{ post.title }}</strong> <code>{{ post.slug }}</code></p>
+    <form method="post">
+      {% csrf_token %}
+      {{ form.non_field_errors }}
+      {% for field in form %}
+        <div class="form-row{% if field.errors %} errors{% endif %}">
+          {{ field.errors }}
+          {{ field.label_tag }} {{ field }}
+          {% if field.help_text %}<div class="help">{{ field.help_text }}</div>{% endif %}
+        </div>
+      {% endfor %}
+      <div class="submit-row">
+        <input type="submit" value="{% trans 'Continue' %}" class="default" />
+        {% if change_url %}<a href="{{ change_url }}" class="closelink">{% trans "Back" %}</a>{% endif %}
+      </div>
+    </form>
+  </div>
+{% endblock %}
