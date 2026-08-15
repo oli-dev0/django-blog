@@ -5,8 +5,9 @@ backend. It owns article data, structured content, publication visibility,
 editorial workflow, media metadata, SEO context, RSS, sitemap entries, and
 the site-compatibility rules for related articles and controlled first-party
 links. It also owns profile-backed editorial authors, taxonomy archives,
-computed reading-time metadata, and shared article presentation. The consuming
-site apps own their public list/detail shells and branding.
+computed reading-time metadata, and shared article presentation. Consuming
+site apps can own their public list/detail shells and branding, or opt into the
+app-owned reference shell for a neutral standalone presentation.
 
 ## Surfaces
 
@@ -20,6 +21,11 @@ site apps own their public list/detail shells and branding.
 - Production Blog sites: `my_website` and `vanta_site`. Easy Meals retains a
   site-owned presentation for portability tests but does not enable public
   Blog routing.
+- Reference frontend: opt in with a site definition whose
+  `template_namespace` is `blog` and whose Blog URL namespace is `blog`; this
+  uses `blog/templates/blog/base.html`, `list.html`, and `detail.html` plus the
+  app-owned Blog static assets. Hosts must run `collectstatic` before rendering
+  with manifest-backed static storage.
 - No mobile client or public API.
 
 Only English Blog URLs are valid. The personal site uses unprefixed canonical

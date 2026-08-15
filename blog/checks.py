@@ -19,7 +19,11 @@ def check_blog_site_definitions(app_configs, **kwargs):
                 )
             )
         for template in ('blog/list.html', 'blog/detail.html'):
-            template_name = f'{site.template_namespace}/{template}'
+            template_name = (
+                template
+                if site.template_namespace == 'blog'
+                else f'{site.template_namespace}/{template}'
+            )
             try:
                 get_template(template_name)
             except TemplateDoesNotExist:

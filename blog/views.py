@@ -52,6 +52,8 @@ BLOG_LIST_IMAGE_SIZES = (
 
 
 def get_blog_template(site, template_name):
+    if site.template_namespace == 'blog':
+        return f'blog/{template_name}.html'
     return get_site_template_name(site, f'blog/{template_name}.html')
 
 
@@ -361,6 +363,7 @@ def _post_list_response(
     context = {
         'posts': page_obj.object_list,
         'page_obj': page_obj,
+        'site_name': site.name,
         'active_tag': tag,
         'active_category': category,
         'active_author_name': author.public_author_name if author else None,

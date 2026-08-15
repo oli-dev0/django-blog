@@ -6,6 +6,12 @@ It goes beyond a basic title-and-body blog. Articles can use reusable content bl
 
 The project is shared as a showcase for anyone who wants to explore how these features can fit together in a real Django application.
 
+The Blog package also includes an opt-in reference frontend. A host site can
+set its Blog `template_namespace` to `blog` and expose the `blog` URL namespace
+to use the app-owned list and detail shell, typography, theme control, and
+static assets. Existing site-owned shells remain available for hosts that need
+their own branding or layout.
+
 ## See it in action
 
 You can see the Blog running on two live websites:
@@ -40,6 +46,9 @@ You don't need to understand the whole project at once.
 - Start with [`blog/models.py`](blog/models.py) to see how articles and content blocks are stored.
 - Look at [`blog/admin.py`](blog/admin.py) for the writing and publishing experience.
 - Browse [`blog/templates/blog/`](blog/templates/blog/) to see how articles are displayed.
+- See [`blog/templates/blog/base.html`](blog/templates/blog/base.html) and
+  [`blog/static/blog/css/shell.css`](blog/static/blog/css/shell.css) for the
+  opt-in reference frontend.
 - Read the [feature overview](docs/features.md) for a guided tour of the main parts.
 - Check the [`tests/`](tests/) folder for practical examples of the expected behaviour.
 
@@ -64,11 +73,24 @@ For the exact integration details, see:
 
 The included tests came from the original Django project, so they need a compatible host project and settings to run. The code can still be read, studied, and adapted without that project.
 
-Once it is connected to a compatible Django project, the Blog test suite can be run with:
+Once it is connected to a compatible Django project, the Django integration
+tests can be run with the host project's test command. Collect static files
+first when using manifest-backed storage:
 
 ```bash
+python manage.py collectstatic --noinput
 DJANGO_SETTINGS_MODULE=config.settings.local python manage.py test tests.blog
 ```
+
+The standalone reference-frontend asset contracts do not need Django settings:
+
+```bash
+python -m unittest tests.test_reference_frontend_assets
+```
+
+The request/response tests in `tests/test_reference_frontend.py` need the host
+project's settings, URL configuration, database, and compatible `apps.core`
+integration described above.
 
 ## Security and privacy
 

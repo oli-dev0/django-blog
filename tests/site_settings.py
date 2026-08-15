@@ -19,3 +19,13 @@ BLOG_ENABLED_SITE_DEFINITIONS = {
     }
     for site_slug, definition in settings.SITE_DEFINITIONS.items()
 }
+
+REFERENCE_BLOG_SITE_DEFINITIONS = {
+    site_slug: {
+        **definition,
+        'template_namespace': 'blog',
+        'route_namespaces': tuple(dict.fromkeys((*definition['route_namespaces'], 'blog'))),
+        'blog_url_namespace': 'blog',
+    }
+    for site_slug, definition in settings.SITE_DEFINITIONS.items()
+}

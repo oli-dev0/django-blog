@@ -1,0 +1,63 @@
+{% extends "blog/base.html" %}
+{% load i18n static %}
+
+{% block title %}{% if active_tag %}{{ active_tag.name }} articles | Blog | {{ site_name }}{% elif active_category %}{{ active_category.name }} articles | Blog | {{ site_name }}{% elif active_author_name %}Articles by {{ active_author_name }} | Blog | {{ site_name }}{% else %}Blog | {{ site_name }}{% endif %}{{ pagination_title_suffix }}{% endblock %}
+{% block head_meta %}
+  <meta name="description" content="{% if active_tag %}{{ site_name }} articles tagged {{ active_tag.name }}.{% elif active_category %}{{ site_name }} articles in the {{ active_category.name }} category.{% elif active_author_name %}{{ site_name }} articles by {{ active_author_name }}.{% else %}Articles, guides, and notes from {{ site_name }}.{% endif %}{{ pagination_description_suffix }}">
+  {% if filter_active or active_archive and not archive_indexable %}<meta name="robots" content="noindex,follow">{% else %}<meta name="robots" content="index, follow">{% endif %}
+  <link rel="canonical" href="{{ canonical_url }}">
+  <link rel="alternate" type="application/rss+xml" title="{{ rss_feed_title }}" href="{{ rss_feed_url }}">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="{% if active_tag %}{{ active_tag.name }} articles | Blog | {{ site_name }}{% elif active_category %}{{ active_category.name }} articles | Blog | {{ site_name }}{% elif active_author_name %}Articles by {{ active_author_name }} | Blog | {{ site_name }}{% else %}Blog | {{ site_name }}{% endif %}{{ pagination_title_suffix }}">
+  <meta property="og:description" content="{% if active_tag %}{{ site_name }} articles tagged {{ active_tag.name }}.{% elif active_category %}{{ site_name }} articles in the {{ active_category.name }} category.{% elif active_author_name %}{{ site_name }} articles by {{ active_author_name }}.{% else %}Articles, guides, and notes from {{ site_name }}.{% endif %}{{ pagination_description_suffix }}">
+  <meta property="og:url" content="{{ canonical_url }}">
+  {% if seo_og_image_url %}<meta property="og:image" content="{{ seo_og_image_url }}"><meta property="og:image:alt" content="{{ seo_og_image_alt }}">{% endif %}
+  <meta name="twitter:card" content="{% if seo_og_image_url %}summary_large_image{% else %}summary{% endif %}">
+  <meta name="twitter:title" content="{% if active_tag %}{{ active_tag.name }} articles | Blog | {{ site_name }}{% elif active_category %}{{ active_category.name }} articles | Blog | {{ site_name }}{% elif active_author_name %}Articles by {{ active_author_name }} | Blog | {{ site_name }}{% else %}Blog | {{ site_name }}{% endif %}{{ pagination_title_suffix }}">
+  <meta name="twitter:description" content="{% if active_tag %}{{ site_name }} articles tagged {{ active_tag.name }}.{% elif active_category %}{{ site_name }} articles in the {{ active_category.name }} category.{% elif active_author_name %}{{ site_name }} articles by {{ active_author_name }}.{% else %}Articles, guides, and notes from {{ site_name }}.{% endif %}{{ pagination_description_suffix }}">
+  {% if seo_og_image_url %}<meta name="twitter:image" content="{{ seo_og_image_url }}"><meta name="twitter:image:alt" content="{{ seo_og_image_alt }}">{% endif %}
+{% endblock %}
+{% block scripts_before_blog %}<script src="{% static 'blog/js/tags.js' %}?v=remaining-tags-viewport" defer></script><script src="{% static 'blog/js/list.js' %}?v=tag-filter-restore" defer></script>{% endblock %}
+
+{% block content %}
+  <section class="blog-list{% if not active_archive %} blog-list--homepage{% endif %}" aria-labelledby="blog-title">
+    <h1 id="blog-title">{% if archive_heading %}{{ archive_heading }}{% else %}<a href="{% url 'blog:list' %}" data-blog-return-link>{{ site_name }} Blog</a>{% endif %}</h1>
+    <p>{% trans "Articles, guides, and notes from this publication." %}</p>
+    {% if show_blog_filters %}{% include "blog/list_filters.html" %}{% endif %}
+    <div id="blog-filter-results" class="blog-list__results" data-blog-filter-results aria-busy="false">
+      <p class="visually-hidden" role="status" aria-live="polite" data-blog-filter-status>{% if filters_selected %}{% trans "Filtered articles loaded." %}{% else %}{% trans "Articles loaded." %}{% endif %}</p>
+      {% if posts %}
+        <div class="stack-list">
+          {% for post in posts %}
+            <article class="blog-list__item">
+              {% url 'blog:detail' slug=post.slug as post_url %}
+              {% include "blog/featured_image.html" with featured_image=post.featured_image_data hide_caption=True link_url=post_url blog_article_link=True high_priority=forloop.first %}
+              <div class="blog-list__eyebrow">
+                <p class="blog-article__type">{{ post.get_type_display }}</p>
+                {% if post.category %}<span class="blog-list__meta-item blog-list__category"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3.5 7.5A2 2 0 0 1 5.5 5.5H10l2 2h6.5a2 2 0 0 1 2 2v8.5c0 1.1-.9 2-2 2h-15a2 2 0 0 1-2-2V7.5Z"></path></svg><a href="{% url 'blog:category' slug=post.category.slug %}">{{ post.category.name }}</a></span>{% endif %}
+              </div>
+              <h2><a href="{% url 'blog:detail' slug=post.slug %}" data-blog-article-link>{{ post.title }}</a></h2>
+              <span class="blog-list__meta-item blog-list__reading-time">
+                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="8.5"></circle><path d="M12 7v5l3.5 2"></path></svg>
+                {% blocktranslate with minutes=post.reading_time_minutes %}{{ minutes }} min read{% endblocktranslate %}
+              </span>
+              <p class="blog-list__summary">{{ post.summary }}</p>
+              {% include "blog/list_metadata.html" with post=post %}
+            </article>
+          {% endfor %}
+        </div>
+        {% if page_obj.has_other_pages %}{% include "blog/pagination.html" %}{% endif %}
+      {% elif search_active %}
+        <div class="blog-list__empty">
+          <h2>{% trans "No articles match your search" %}</h2>
+          <p>{% trans "Try a different search or clear it to see more articles." %}</p>
+          <div class="blog-list__empty-actions"><a href="{{ clear_search_url }}">{% trans "Clear search" %}</a>{% if has_non_search_filters %}<a href="{{ clear_filters_url }}">{% trans "Clear all filters" %}</a>{% endif %}</div>
+        </div>
+      {% elif filter_active %}
+        <div class="blog-list__empty"><h2>{% trans "No articles match these filters" %}</h2><p>{% trans "Try removing a filter or clear all filters to see more articles." %}</p><a href="{{ clear_filters_url }}">{% trans "Clear all filters" %}</a></div>
+      {% else %}
+        <p>{% trans "No articles have been published yet." %}</p>
+      {% endif %}
+    </div>
+  </section>
+{% endblock %}

@@ -1,0 +1,61 @@
+{% load i18n static %}
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}{{ site_name }} Blog{% endblock %}</title>
+  <meta property="og:site_name" content="{{ site_name }}">
+  {% block head_meta %}{% endblock %}
+  <link rel="stylesheet" href="{% static 'blog/css/shell.css' %}">
+  <link rel="stylesheet" href="{% static 'blog/css/article.css' %}">
+  <script src="{% static 'blog/js/theme.js' %}" defer></script>
+  {% block scripts_before_blog %}{% endblock %}
+</head>
+<body>
+  <a class="skip-link" href="#main-content">{% trans "Skip to content" %}</a>
+  <header class="site-header" aria-label="{% trans 'Blog header' %}">
+    <div class="site-header__inner">
+      <a class="brand" href="{% url 'blog:list' %}" aria-label="{{ site_name }} Blog">
+        <span class="brand__mark" aria-hidden="true">B</span>
+        <span class="brand__name">{{ site_name }}</span>
+      </a>
+      <nav class="site-nav" aria-label="{% trans 'Blog navigation' %}">
+        <div class="site-nav__links">
+          <a href="{% url 'blog:list' %}"{% if request.resolver_match.namespace == 'blog' %} aria-current="page"{% endif %}>{% trans "Blog" %}</a>
+        </div>
+      </nav>
+      <div class="header-actions">
+        <fieldset class="appearance-toggle" data-status-appearance-toggle hidden aria-label="{% trans 'Color scheme' %}">
+          <legend class="sr-only">{% trans "Color scheme" %}</legend>
+          <label>
+            <input type="radio" name="status-appearance" value="light">
+            <span>
+              <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                <circle cx="12" cy="12" r="4"></circle>
+                <path d="M12 2v2M12 20v2M4 12H2M22 12h-2M5 5l1.5 1.5M17.5 17.5 19 19M19 5l-1.5 1.5M5 19l1.5-1.5"></path>
+              </svg>
+              <span class="sr-only">{% trans "Light" %}</span>
+            </span>
+          </label>
+          <label>
+            <input type="radio" name="status-appearance" value="dark" checked>
+            <span>
+              <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                <path d="M21 12.5A8.5 8.5 0 1 1 11.5 3A6.5 6.5 0 0 0 21 12.5z"></path>
+              </svg>
+              <span class="sr-only">{% trans "Dark" %}</span>
+            </span>
+          </label>
+        </fieldset>
+      </div>
+    </div>
+  </header>
+  <main id="main-content">{% block content %}{% endblock %}</main>
+  <footer class="site-footer">
+    <p><a href="{% url 'blog:list' %}">{{ site_name }} Blog</a></p>
+    <p>{% blocktrans with name=site_name %}A publication by {{ name }}.{% endblocktrans %}</p>
+  </footer>
+  {% block scripts_after_blog %}{% endblock %}
+</body>
+</html>

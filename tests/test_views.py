@@ -581,7 +581,7 @@ class BlogViewTests(TestCase):
                     'whatsapp.svg',
                     'email.svg',
                 ):
-                    self.assertIn(static(f'core/img/icons/{icon}'), content)
+                    self.assertIn(static(f'blog/img/icons/{icon}'), content)
                 share_menu = content[
                     content.index('id="blog-share-menu"') : content.index('data-blog-print')
                 ]

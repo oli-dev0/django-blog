@@ -1,5 +1,18 @@
 # Blog Backend And Web Tests
 
+Reference frontend coverage is kept in the extracted showcase test package:
+
+- `tests/test_reference_frontend.py`: opt-in template selection, list/detail
+  rendering, metadata and JSON-LD preservation, filtered-list noindex behavior,
+  and the missing-template system check.
+- `tests/test_reference_frontend_assets.py`: app-owned static/template
+  references, font paths, neutral branding, progressive-enhancement assets,
+  and safe theme initialization.
+
+The request/response tests require a compatible host project and its Django
+settings. Run `collectstatic --noinput` first when the host uses
+manifest-backed static storage.
+
 Focused coverage is under `tests/blog/`:
 
 - `test_models.py`: author profiles and stable unique slugs, required categories,
