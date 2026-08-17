@@ -1,8 +1,128 @@
 # Blog Article Import
 
-The Blog import workflow creates a new draft article from one versioned JSON
+The Blog import workflow creates a new draft article from a version 2 JSON
 document and optional local image files. It is a private Django Admin workflow;
 there is no public import route or API.
+
+This guide documents the v2 format only. The checked-in JSON Schema is the
+machine-readable contract:
+
+[`blog/schemas/blog-article-import-v2.schema.json`](../blog/schemas/blog-article-import-v2.schema.json)
+
+A broad example covering the complete package structure is available at
+[`docs/example-blog-article.json`](example-blog-article.json).
+
+## Quick start
+
+1. Copy the example JSON and edit the article metadata and blocks.
+2. Put every referenced image file in the upload selection when opening the
+   Admin import form. The `file` value is matched to the selected file's
+   basename, so use unique filenames.
+3. Upload the JSON and images together, review the resolved values, then
+   explicitly confirm draft creation.
+
+The root must always contain these fields:
+
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `format` | string | Always `blog-article-import`. |
+| `version` | integer | Always `2`. |
+| `article` | object | Article metadata and ordered content blocks. |
+| `assets` | array | Definitions for regular and featured images. |
+| `comparisons` | array | Definitions for two-sided comparison images. |
+
+Unknown fields are rejected. The schema also rejects duplicate JSON keys,
+unsafe image paths, invalid references, and unsupported block shapes.
+
+## Article fields
+
+`article` requires `title`, `summary`, `author`, `category`,
+`publication_sites`, and at least one `blocks` entry.
+
+| Field | Type | Required | Notes |
+| --- | --- | --- | --- |
+| `title` | string | yes | 1–200 characters. |
+| `slug` | slug string | no | Lowercase words separated by hyphens. If omitted, it is generated from `title`. |
+| `type` | string | no | `article`, `guide`, `comparison`, `top_list`, or `showcase`. Defaults to `article`. |
+| `summary` | string | yes | The article summary. |
+| `author` | `{ "slug": "..." }` | yes | References an existing author profile by slug. |
+| `seo` | object | no | Optional `title` (maximum 70) and `description` (maximum 160). |
+| `category` | `{ "name": "...", "slug": "..." }` | yes | v2 requires both the display name and slug. |
+| `tags` | array of `{ "name": "...", "slug": "..." }` | no | Defaults to `[]`; names and slugs must be unique within the document. |
+| `publication_sites` | array of site slugs | yes | At least one site. |
+| `canonical_site` | site slug | no | Must be one of `publication_sites`; otherwise the first selected site is used. |
+| `featured_image` | asset id or `null` | no | Must reference an entry in `assets`. |
+| `related_articles` | array of `{ "slug": "..." }` | no | Defaults to `[]`; references existing compatible articles. |
+| `blocks` | array | yes | Ordered content; each entry uses one block type below. |
+
+Names and slugs are source values. The import review resolves them against the
+destination project's authors, taxonomy, sites, and related articles. Missing
+authors and missing related articles block the import. v2 can propose creating
+missing named categories and tags, but the editor must confirm that choice and
+have the required permissions.
+
+## Content blocks
+
+Every block has a `type` field. The supported shapes are:
+
+| Type | Required fields | Optional fields |
+| --- | --- | --- |
+| `heading` | `level` (`2` or `3`), `text` | — |
+| `rich_text` | `body` | — |
+| `faq` | `items` containing `question` and `answer` | — |
+| `checklist` | `items` | `marker`: `checkmark`, `square`, or `arrow` (default `checkmark`) |
+| `code` | `code` | `language`: `text`, `python`, `shell`, `html`, `css`, `javascript`, `json`, `sql`, or `dart`; `caption` |
+| `embed_sharing` | `platform`, `url` | `caption`; platform is `youtube`, `x`, or `reddit` |
+| `callout` | `body` | `callout_type`: `note`, `tip`, or `warning` (default `note`); `title` |
+| `source_link` | `url` | `label` (default `Source:`), `note` |
+| `link_group` | `label`, `links` containing `label` and `url` | — |
+| `internal_link` | `destination_key`, `label` | `note` |
+| `image` | `asset_id` | `is_expandable` (default `true`) |
+| `image_comparison` | `comparison_id` | — |
+
+Rich text and answer/body fields contain the HTML supported by the host Blog
+editor. Image blocks refer to definitions in `assets`; they do not contain
+file paths directly. Internal links use a code-owned destination key, not a
+free-form URL. The available keys depend on the host project and selected
+publication sites.
+
+## Image assets
+
+Each `assets` entry has `id`, `file`, `name`, and `alt_text`:
+
+```json
+{
+  "id": "hero",
+  "file": "images/hero.jpg",
+  "name": "Article hero image",
+  "alt_text": "A short description of the hero image",
+  "is_feature": true,
+  "is_decorative": false,
+  "caption_title": "Optional title",
+  "caption_text": "Optional caption"
+}
+```
+
+`id` is the document-local identifier used by `featured_image` and image
+blocks. `file` is a relative POSIX path used only to match an uploaded file;
+URLs, absolute paths, `..`, backslashes, and duplicate basenames are invalid.
+Use `is_decorative` only when the image is decorative and does not need alt
+text. `is_feature` is metadata for the featured-image choice; the article's
+`featured_image` field is the explicit assignment.
+
+Comparison entries use `id`, `name`, `first`, and `second`. Each side has a
+`file` and non-empty `alt_text`:
+
+```json
+{
+  "id": "before-after",
+  "name": "Before and after",
+  "first": { "file": "images/before.jpg", "alt_text": "Before the change" },
+  "second": { "file": "images/after.jpg", "alt_text": "After the change" },
+  "caption_title": "The result",
+  "caption_text": "A short comparison caption."
+}
+```
 
 ## Product behavior
 
@@ -21,10 +141,9 @@ warnings; generated slugs receive deterministic numeric suffixes when needed.
 
 ## Contract and validation
 
-`apps/blog/import_contract.py` parses at most 1 MiB of UTF-8 JSON against the
-matching checked-in v1 or v2 schema under `apps/blog/schemas/`. v1 remains
-supported for existing packages; v2 adds required taxonomy names so the review
-can safely propose term creation. Unknown fields,
+`blog/import_contract.py` parses at most 1 MiB of UTF-8 JSON against the
+checked-in v2 schema under `blog/schemas/`. v2 requires taxonomy names so the
+review can safely propose term creation. Unknown fields,
 duplicate keys, malformed roots, unsafe paths, invalid references, and empty or
 unsafe block content are rejected with stable issue codes and `$`-based source
 locations.
@@ -95,13 +214,12 @@ forms remain the complete fallback.
 
 ## Implementation map
 
-- Contract and schema: `apps/blog/import_contract.py`, `apps/blog/schemas/`
-- Forms and package review: `apps/blog/import_forms.py`
-- Staging, validation, creation, and cleanup: `apps/blog/import_services.py`
-- Admin adapter: `apps/blog/admin.py`
-- Templates: `apps/blog/templates/admin/blog/import_*.html`
-- Cleanup command: `apps/blog/management/commands/cleanup_blog_imports.py`
-- Historical planning material: `docs/blog/features/import/`
+- Contract and schema: `blog/import_contract.py`, `blog/schemas/`
+- Forms and package review: `blog/import_forms.py`
+- Staging, validation, creation, and cleanup: `blog/import_services.py`
+- Admin adapter: `blog/admin.py`
+- Templates: `blog/templates/admin/blog/import_*.html`
+- Cleanup command: `blog/management/commands/cleanup_blog_imports.py`
 
 ## Tests
 

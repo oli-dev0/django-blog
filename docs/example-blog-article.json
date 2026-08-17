@@ -1,0 +1,149 @@
+{
+  "format": "blog-article-import",
+  "version": 2,
+  "article": {
+    "title": "A practical guide to publishing with Django",
+    "slug": "practical-guide-publishing-django",
+    "type": "guide",
+    "summary": "A small example article showing the fields and blocks supported by the Blog import format.",
+    "author": {
+      "slug": "oli"
+    },
+    "seo": {
+      "title": "A practical guide to publishing with Django",
+      "description": "An example imported Django Blog article with metadata, content blocks, links, and images."
+    },
+    "category": {
+      "name": "Development",
+      "slug": "development"
+    },
+    "tags": [
+      {
+        "name": "Django",
+        "slug": "django"
+      },
+      {
+        "name": "Publishing",
+        "slug": "publishing"
+      }
+    ],
+    "publication_sites": [
+      "vanta_admin"
+    ],
+    "canonical_site": "vanta_admin",
+    "featured_image": "hero",
+    "related_articles": [
+      {
+        "slug": "existing-related-article"
+      }
+    ],
+    "blocks": [
+      {
+        "type": "heading",
+        "level": 2,
+        "text": "Start with a clear structure"
+      },
+      {
+        "type": "rich_text",
+        "body": "<p>Use rich text for paragraphs and other editor-supported markup. Keep the content focused on one useful idea.</p>"
+      },
+      {
+        "type": "checklist",
+        "marker": "checkmark",
+        "items": [
+          "Choose a descriptive title",
+          "Add a useful summary",
+          "Review the imported draft"
+        ]
+      },
+      {
+        "type": "code",
+        "language": "python",
+        "code": "from django.http import HttpResponse\n\n\ndef health_check(request):\n    return HttpResponse(\"ok\")",
+        "caption": "A small Django view"
+      },
+      {
+        "type": "callout",
+        "callout_type": "tip",
+        "title": "Keep imports reviewable",
+        "body": "Import creates a separate draft, so an editor can check the content before publication."
+      },
+      {
+        "type": "heading",
+        "level": 3,
+        "text": "Add supporting references"
+      },
+      {
+        "type": "faq",
+        "items": [
+          {
+            "question": "Does import publish the article?",
+            "answer": "No. It always creates a new draft for review."
+          }
+        ]
+      },
+      {
+        "type": "source_link",
+        "label": "Django documentation:",
+        "url": "https://docs.djangoproject.com/en/stable/",
+        "note": "The official Django documentation."
+      },
+      {
+        "type": "link_group",
+        "label": "Continue reading",
+        "links": [
+          {
+            "label": "Django project",
+            "url": "https://www.djangoproject.com/"
+          }
+        ]
+      },
+      {
+        "type": "internal_link",
+        "destination_key": "vanta-features",
+        "label": "Explore the product features",
+        "note": "An approved first-party destination."
+      },
+      {
+        "type": "image",
+        "asset_id": "hero",
+        "is_expandable": true
+      },
+      {
+        "type": "image_comparison",
+        "comparison_id": "before-after"
+      },
+      {
+        "type": "rich_text",
+        "body": "<p>Finish with a concise takeaway and check every referenced file before submitting the package.</p>"
+      }
+    ]
+  },
+  "assets": [
+    {
+      "id": "hero",
+      "file": "images/hero.jpg",
+      "name": "Django publishing guide",
+      "alt_text": "A laptop showing a Django publishing workflow",
+      "is_feature": true,
+      "caption_title": "A structured publishing workflow",
+      "caption_text": "The example article's featured image."
+    }
+  ],
+  "comparisons": [
+    {
+      "id": "before-after",
+      "name": "Before and after",
+      "first": {
+        "file": "images/before.jpg",
+        "alt_text": "The article before the publishing workflow is applied"
+      },
+      "second": {
+        "file": "images/after.jpg",
+        "alt_text": "The article after the publishing workflow is applied"
+      },
+      "caption_title": "The result",
+      "caption_text": "A comparison image can use two separately uploaded files."
+    }
+  ]
+}
