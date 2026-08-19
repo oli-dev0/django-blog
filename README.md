@@ -62,6 +62,7 @@ You'll need Django, Pillow, Bleach, and jsonschema. You will also need to connec
 
 For the exact integration details, see:
 
+- [Host integration examples](examples/host_integration/README.md)
 - [Data model](docs/database.md)
 - [Content blocks](docs/content-blocks.md)
 - [Import workflow](docs/import.md)
