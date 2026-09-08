@@ -1,0 +1,5 @@
+{% if item.level == 2 %}
+  <h2 id="{{ item.anchor }}">{{ item.text }}</h2>
+{% else %}
+  <h3 id="{{ item.anchor }}">{{ item.text }}</h3>
+{% endif %}

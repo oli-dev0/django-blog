@@ -1,0 +1,63 @@
+{% load i18n %}
+<figure
+  class="blog-image-comparison"
+  data-blog-image-comparison
+  data-caption-title="{{ comparison.caption_title }}"
+  data-caption-text="{{ comparison.caption_text }}"
+>
+  <ol class="blog-image-comparison__media">
+    <li>
+      {% if comparison.first %}
+        <a
+          class="blog-image-link"
+          href="{{ comparison.first.original }}"
+          data-blog-image-dialog
+          aria-label="{% blocktrans with alt=comparison.first.alt %}Open {{ alt }} at full size{% endblocktrans %}"
+        >
+          <picture>
+            <img
+              src="{{ comparison.first.src }}"
+              {% if comparison.first.srcset %}srcset="{{ comparison.first.srcset }}" sizes="{{ comparison.first.sizes }}"{% endif %}
+              width="{{ comparison.first.width }}"
+              height="{{ comparison.first.height }}"
+              alt="{{ comparison.first.alt }}"
+              {% if loading %}loading="{{ loading }}"{% endif %}
+            >
+          </picture>
+        </a>
+      {% else %}
+        <p class="blog-image-unavailable">{% trans "Image unavailable." %}</p>
+      {% endif %}
+    </li>
+    <li>
+      {% if comparison.second %}
+        <a
+          class="blog-image-link"
+          href="{{ comparison.second.original }}"
+          data-blog-image-dialog
+          aria-label="{% blocktrans with alt=comparison.second.alt %}Open {{ alt }} at full size{% endblocktrans %}"
+        >
+          <picture>
+            <img
+              src="{{ comparison.second.src }}"
+              {% if comparison.second.srcset %}srcset="{{ comparison.second.srcset }}" sizes="{{ comparison.second.sizes }}"{% endif %}
+              width="{{ comparison.second.width }}"
+              height="{{ comparison.second.height }}"
+              alt="{{ comparison.second.alt }}"
+              {% if loading %}loading="{{ loading }}"{% endif %}
+            >
+          </picture>
+        </a>
+      {% else %}
+        <p class="blog-image-unavailable">{% trans "Image unavailable." %}</p>
+      {% endif %}
+    </li>
+  </ol>
+  {% if comparison.caption_title or comparison.caption_text %}
+    <figcaption>
+      {% if comparison.caption_title %}<strong>{{ comparison.caption_title }}</strong>{% endif %}
+      {% if comparison.caption_title and comparison.caption_text %} {% endif %}
+      {{ comparison.caption_text }}
+    </figcaption>
+  {% endif %}
+</figure>

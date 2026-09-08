@@ -1,0 +1,19 @@
+{% load i18n %}
+<div class="blog-image-comparison-picker">
+  <select name="{{ widget.name }}"{% include "django/forms/widgets/attrs.html" %}>
+    {% for group_name, group_choices, group_index in widget.optgroups %}
+      {% if group_name %}<optgroup label="{{ group_name }}">{% endif %}
+      {% for option in group_choices %}
+        <option value="{{ option.value }}"{% for name, value in option.attrs.items %}{% if value is not False %} {{ name }}{% if value is not True %}="{{ value|stringformat:'s' }}"{% endif %}{% endif %}{% endfor %}{% if option.selected %} selected{% endif %}>{{ option.label }}</option>
+      {% endfor %}
+      {% if group_name %}</optgroup>{% endif %}
+    {% endfor %}
+  </select>
+  <div class="blog-image-comparison-picker__preview" data-blog-comparison-preview hidden>
+    <div class="blog-image-comparison-picker__images">
+      <img src="" alt="" width="160" height="90" data-blog-comparison-preview-first>
+      <img src="" alt="" width="160" height="90" data-blog-comparison-preview-second>
+    </div>
+    <p data-blog-comparison-preview-caption></p>
+  </div>
+</div>

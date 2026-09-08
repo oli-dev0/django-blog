@@ -1,0 +1,45 @@
+{% load i18n static %}
+<div class="blog-list__footer">
+<div class="blog-list__meta" aria-label="{% trans 'Article details' %}">
+  {% if post.author and post.author.public_author_name %}
+    <span class="blog-list__meta-item">
+      <img
+        class="blog-article__author-picture{% if not post.author.profile_picture %} blog-article__author-picture--default{% endif %}"
+        src="{% if post.author.profile_picture %}{{ post.author.profile_picture.url }}{% else %}{% static 'blog/img/default-author.svg' %}{% endif %}"
+        alt=""
+        width="30"
+        height="30"
+      >
+      <a href="{% url 'blog:author' author_slug=post.author.slug %}" rel="author">{{ post.author.public_author_name }}</a>
+    </span>
+  {% endif %}
+  {% if post.published_at %}
+    <time class="blog-list__meta-item blog-list__date" datetime="{{ post.published_at|date:'c' }}">
+      <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3.5" y="5.5" width="17" height="15" rx="2"></rect><path d="M7.5 3.5v4M16.5 3.5v4M3.5 10h17"></path></svg>
+      {{ post.published_at|date:'j M Y' }}
+    </time>
+  {% endif %}
+</div>
+{% with tags=post.tags.all %}
+  {% if tags %}
+    <nav class="blog-list__tags" aria-label="{% trans 'Tags' %}" data-blog-tags>
+      <span class="blog-tags__label">
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" fill-rule="evenodd" d="M2.5 4.5a2 2 0 0 1 2-2h5.086a2 2 0 0 1 1.414.586l10 10a2 2 0 0 1 0 2.828l-5.086 5.086a2 2 0 0 1-2.828 0l-10-10A2 2 0 0 1 2.5 9.586V4.5Zm5.5 2.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Z"></path></svg>
+      </span>
+      <ul>
+        {% for tag in tags %}<li data-blog-tag-item><a href="{% url 'blog:tag' slug=tag.slug %}">{{ tag.name }}</a></li>{% endfor %}
+        <li class="blog-tags__more" data-blog-tags-more hidden>
+          <details>
+            <summary>+<span data-blog-tags-count>0</span><span class="visually-hidden"> {% trans "Show remaining tags" %}</span></summary>
+            <div class="blog-tags__popup">
+              <ul>
+                {% for tag in tags %}<li><a href="{% url 'blog:tag' slug=tag.slug %}">{{ tag.name }}</a></li>{% endfor %}
+              </ul>
+            </div>
+          </details>
+        </li>
+      </ul>
+    </nav>
+  {% endif %}
+{% endwith %}
+</div>

@@ -1,0 +1,19 @@
+{% load i18n %}
+{% if image %}
+  <figure class="blog-figure">
+    {% if item.is_expandable %}<a class="blog-image-link" href="{{ image.original }}" data-blog-image-dialog aria-label="Open {{ image.alt|default:'image' }} at full size">{% endif %}
+      <picture>
+        <img src="{{ image.src }}"{% if image.srcset %} srcset="{{ image.srcset }}" sizes="{{ image.sizes }}"{% endif %} width="{{ image.width }}" height="{{ image.height }}" alt="{{ image.alt }}"{% if loading %} loading="{{ loading }}"{% endif %} />
+      </picture>
+    {% if item.is_expandable %}</a>{% endif %}
+    {% if image.caption_title or image.caption_text %}
+      <figcaption>
+        {% if image.caption_title %}<strong>{{ image.caption_title }}</strong>{% endif %}
+        {% if image.caption_title and image.caption_text %} {% endif %}
+        {{ image.caption_text }}
+      </figcaption>
+    {% endif %}
+  </figure>
+{% else %}
+  <p class="blog-image-unavailable">{% trans "Image unavailable." %}</p>
+{% endif %}

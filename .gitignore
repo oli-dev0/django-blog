@@ -1,0 +1,12 @@
+__pycache__/
+*.py[cod]
+*.sqlite3
+.coverage
+.pytest_cache/
+.ruff_cache/
+.venv/
+media/
+staticfiles/
+.env
+.env.*
+!.env.example

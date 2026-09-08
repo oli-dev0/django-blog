@@ -1,0 +1,14 @@
+{% if featured_image %}
+  <figure class="blog-figure blog-figure--featured">
+    {% if link_url %}<a class="blog-image-link" href="{{ link_url }}"{% if blog_article_link %} data-blog-article-link{% endif %}>{% endif %}
+      <img src="{{ featured_image.src }}"{% if featured_image.srcset %} srcset="{{ featured_image.srcset }}" sizes="{{ featured_image.sizes }}"{% endif %} width="{{ featured_image.width }}" height="{{ featured_image.height }}" alt="{{ featured_image.alt }}" loading="{% if high_priority %}eager{% else %}lazy{% endif %}"{% if high_priority %} fetchpriority="high"{% endif %} />
+    {% if link_url %}</a>{% endif %}
+  {% if not hide_caption and featured_image.caption_title or not hide_caption and featured_image.caption_text %}
+    <figcaption>
+      {% if featured_image.caption_title %}<strong>{{ featured_image.caption_title }}</strong>{% endif %}
+      {% if featured_image.caption_title and featured_image.caption_text %} {% endif %}
+      {{ featured_image.caption_text }}
+    </figcaption>
+  {% endif %}
+  </figure>
+{% endif %}

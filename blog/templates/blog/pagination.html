@@ -1,0 +1,31 @@
+{% load i18n %}
+<nav class="blog-pagination" aria-label="{% trans 'Blog pages' %}">
+  {% if page_obj.has_previous %}<a href="{{ previous_page_url }}">← {% trans "Previous" %}</a>{% endif %}
+  <form class="blog-pagination__jump" action="{{ pagination_form_action }}" method="get">
+    {% if not active_archive and filter_state %}
+      {% if filter_state.search_query %}<input type="hidden" name="q" value="{{ filter_state.search_query }}">{% endif %}
+      {% if filter_state.article_type %}<input type="hidden" name="type" value="{{ filter_state.article_type }}">{% endif %}
+      {% if filter_state.category_slug %}<input type="hidden" name="category" value="{{ filter_state.category_slug }}">{% endif %}
+      {% if filter_state.author_slug %}<input type="hidden" name="author" value="{{ filter_state.author_slug }}">{% endif %}
+      {% if filter_state.date_preset %}<input type="hidden" name="date" value="{{ filter_state.date_preset }}">{% elif filter_state.year %}<input type="hidden" name="year" value="{{ filter_state.year }}">{% endif %}
+      {% for tag_slug in filter_state.tag_slugs %}<input type="hidden" name="tag" value="{{ tag_slug }}">{% endfor %}
+    {% endif %}
+    <label for="blog-pagination-page">{% trans "Page" %}</label>
+    <input
+      id="blog-pagination-page"
+      class="blog-pagination__input"
+      type="number"
+      name="page"
+      value="{{ page_obj.number }}"
+      min="1"
+      max="{{ page_obj.paginator.num_pages }}"
+      inputmode="numeric"
+      required
+      aria-label="{% trans 'Page number' %}"
+    >
+    <span>{% blocktrans with total=page_obj.paginator.num_pages %}of {{ total }}{% endblocktrans %}</span>
+    <span class="blog-pagination__separator" aria-hidden="true">·</span>
+    <button class="blog-pagination__submit" type="submit">{% trans "Go" %}</button>
+  </form>
+  {% if page_obj.has_next %}<a href="{{ next_page_url }}">{% trans "Next" %} →</a>{% endif %}
+</nav>

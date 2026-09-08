@@ -1,0 +1,466 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://showcase.invalid/schemas/blog-article-import-v2.schema.json",
+  "title": "Blog article import version 2",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["format", "version", "article", "assets", "comparisons"],
+  "properties": {
+    "format": {
+      "const": "blog-article-import"
+    },
+    "version": {
+      "const": 2,
+      "type": "integer"
+    },
+    "article": {
+      "$ref": "#/$defs/article"
+    },
+    "assets": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/asset"
+      }
+    },
+    "comparisons": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/comparison"
+      }
+    }
+  },
+  "$defs": {
+    "id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 80,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]*$"
+    },
+    "slug": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 220,
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+    },
+    "site_slug": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 40,
+      "pattern": "^[a-z0-9]+(?:[_-][a-z0-9]+)*$"
+    },
+    "slug_reference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["slug"],
+      "properties": {
+        "slug": {
+          "$ref": "#/$defs/slug"
+        }
+      }
+    },
+    "category_reference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "slug"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 120
+        },
+        "slug": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 140,
+          "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+        }
+      }
+    },
+    "tag_reference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "slug"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 80
+        },
+        "slug": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100,
+          "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+        }
+      }
+    },
+    "seo": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "title": {
+          "type": "string",
+          "maxLength": 70,
+          "default": ""
+        },
+        "description": {
+          "type": "string",
+          "maxLength": 160,
+          "default": ""
+        }
+      }
+    },
+    "article": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "title",
+        "summary",
+        "author",
+        "category",
+        "publication_sites",
+        "blocks"
+      ],
+      "properties": {
+        "title": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "slug": {
+          "$ref": "#/$defs/slug"
+        },
+        "type": {
+          "type": "string",
+          "enum": ["article", "guide", "comparison", "top_list", "showcase"],
+          "default": "article"
+        },
+        "summary": {
+          "type": "string"
+        },
+        "author": {
+          "$ref": "#/$defs/slug_reference"
+        },
+        "seo": {
+          "$ref": "#/$defs/seo"
+        },
+        "category": {
+          "$ref": "#/$defs/category_reference"
+        },
+        "tags": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/tag_reference"
+          },
+          "default": []
+        },
+        "publication_sites": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/site_slug"
+          }
+        },
+        "canonical_site": {
+          "$ref": "#/$defs/site_slug"
+        },
+        "featured_image": {
+          "type": ["string", "null"],
+          "minLength": 1,
+          "maxLength": 80
+        },
+        "related_articles": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/slug_reference"
+          },
+          "default": []
+        },
+        "blocks": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "oneOf": [
+              {"$ref": "#/$defs/heading_block"},
+              {"$ref": "#/$defs/rich_text_block"},
+              {"$ref": "#/$defs/faq_block"},
+              {"$ref": "#/$defs/checklist_block"},
+              {"$ref": "#/$defs/code_block"},
+              {"$ref": "#/$defs/embed_sharing_block"},
+              {"$ref": "#/$defs/callout_block"},
+              {"$ref": "#/$defs/source_link_block"},
+              {"$ref": "#/$defs/link_group_block"},
+              {"$ref": "#/$defs/internal_link_block"},
+              {"$ref": "#/$defs/image_block"},
+              {"$ref": "#/$defs/image_comparison_block"}
+            ]
+          }
+        }
+      }
+    },
+    "asset": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "file", "name", "alt_text"],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "file": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 500
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "alt_text": {
+          "type": "string",
+          "maxLength": 255
+        },
+        "is_decorative": {
+          "type": "boolean",
+          "default": false
+        },
+        "is_feature": {
+          "type": "boolean",
+          "default": false
+        },
+        "caption_title": {
+          "type": "string",
+          "maxLength": 255
+        },
+        "caption_text": {
+          "type": "string",
+          "maxLength": 255
+        }
+      }
+    },
+    "comparison_side": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["file", "alt_text"],
+      "properties": {
+        "file": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 500
+        },
+        "alt_text": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 255
+        }
+      }
+    },
+    "comparison": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "name", "first", "second"],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "first": {
+          "$ref": "#/$defs/comparison_side"
+        },
+        "second": {
+          "$ref": "#/$defs/comparison_side"
+        },
+        "caption_title": {
+          "type": "string",
+          "maxLength": 255
+        },
+        "caption_text": {
+          "type": "string",
+          "maxLength": 255
+        }
+      }
+    },
+    "block_type": {
+      "type": "string",
+      "minLength": 1
+    },
+    "heading_block": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "level", "text"],
+      "properties": {
+        "type": {"const": "heading"},
+        "level": {"type": "integer", "enum": [2, 3]},
+        "text": {"type": "string", "minLength": 1, "maxLength": 200}
+      }
+    },
+    "rich_text_block": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "body"],
+      "properties": {
+        "type": {"const": "rich_text"},
+        "body": {"type": "string", "minLength": 1}
+      }
+    },
+    "faq_item": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["question", "answer"],
+      "properties": {
+        "question": {"type": "string", "minLength": 1, "maxLength": 300},
+        "answer": {"type": "string", "minLength": 1}
+      }
+    },
+    "faq_block": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "items"],
+      "properties": {
+        "type": {"const": "faq"},
+        "items": {
+          "type": "array",
+          "minItems": 1,
+          "items": {"$ref": "#/$defs/faq_item"}
+        }
+      }
+    },
+    "checklist_block": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "items"],
+      "properties": {
+        "type": {"const": "checklist"},
+        "marker": {
+          "type": "string",
+          "enum": ["checkmark", "square", "arrow"],
+          "default": "checkmark"
+        },
+        "items": {
+          "type": "array",
+          "minItems": 1,
+          "items": {"type": "string", "minLength": 1}
+        }
+      }
+    },
+    "code_block": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "code"],
+      "properties": {
+        "type": {"const": "code"},
+        "language": {
+          "type": "string",
+          "enum": ["text", "python", "shell", "html", "css", "javascript", "json", "sql", "dart"],
+          "default": "text"
+        },
+        "code": {"type": "string", "minLength": 1},
+        "caption": {"type": "string", "maxLength": 255}
+      }
+    },
+    "embed_sharing_block": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "platform", "url"],
+      "properties": {
+        "type": {"const": "embed_sharing"},
+        "platform": {
+          "type": "string",
+          "enum": ["youtube", "x", "reddit"]
+        },
+        "url": {
+          "type": "string",
+          "format": "uri",
+          "maxLength": 500
+        },
+        "caption": {"type": "string", "maxLength": 300}
+      }
+    },
+    "callout_block": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "body"],
+      "properties": {
+        "type": {"const": "callout"},
+        "callout_type": {
+          "type": "string",
+          "enum": ["note", "tip", "warning"],
+          "default": "note"
+        },
+        "title": {"type": "string", "maxLength": 200},
+        "body": {"type": "string", "minLength": 1}
+      }
+    },
+    "source_link_block": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "url"],
+      "properties": {
+        "type": {"const": "source_link"},
+        "label": {"type": "string", "maxLength": 200, "default": "Source:"},
+        "url": {"type": "string", "format": "uri"},
+        "note": {"type": "string", "maxLength": 255}
+      }
+    },
+    "external_link": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["label", "url"],
+      "properties": {
+        "label": {"type": "string", "minLength": 1, "maxLength": 200},
+        "url": {"type": "string", "format": "uri"}
+      }
+    },
+    "link_group_block": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "label", "links"],
+      "properties": {
+        "type": {"const": "link_group"},
+        "label": {"type": "string", "minLength": 1, "maxLength": 200},
+        "links": {
+          "type": "array",
+          "minItems": 1,
+          "items": {"$ref": "#/$defs/external_link"}
+        }
+      }
+    },
+    "internal_link_block": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "destination_key", "label"],
+      "properties": {
+        "type": {"const": "internal_link"},
+        "destination_key": {"type": "string", "minLength": 1, "maxLength": 80},
+        "label": {"type": "string", "minLength": 1, "maxLength": 200},
+        "note": {"type": "string", "maxLength": 255}
+      }
+    },
+    "image_block": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "asset_id"],
+      "properties": {
+        "type": {"const": "image"},
+        "asset_id": {"$ref": "#/$defs/id"},
+        "is_expandable": {"type": "boolean", "default": true}
+      }
+    },
+    "image_comparison_block": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "comparison_id"],
+      "properties": {
+        "type": {"const": "image_comparison"},
+        "comparison_id": {"$ref": "#/$defs/id"}
+      }
+    }
+  }
+}
